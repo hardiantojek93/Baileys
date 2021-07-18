@@ -165,6 +165,33 @@ conn.on('qr', qr => {
 await conn.connect ()
 ```
 
+## Reject Incoming Call
+
+If you want to use reject incoming calls, you can add a syntax like below:
+```ts
+const conn = new WAConnection()
+
+// add this
+conn.rejectCall = { autoReject: boolean, message: string, whitelist: any[] }
+
+example:
+conn.rejectCall = { autoReject: true, message: "I can't call. To busy!", whitelist: [] } 
+
+/*
+    Set autoReject to true to enable automatic call rejection and set to false to disable it
+    Set message as you wish if autoReject is true
+    Push phone number to whitelist property for automatic call rejection exception using 'abc@c.us' format
+*/
+```
+
+To active the message when call is coming
+```ts
+conn.on('call-reject', ({ jid, message, rejected }) => {
+    if (rejected)
+        conn.sendMessage(jid, message, 'conversation')
+})
+```
+
 ## Handling Events
 
 Baileys now uses the EventEmitter syntax for events. 
@@ -207,6 +234,8 @@ on (event: 'group-update', listener: (update: Partial<WAGroupMetadata> & {jid: s
 on (event: 'received-pong', listener: () => void): this
 /** when a user is blocked or unblockd */
 on (event: 'blocklist-update', listener: (update: BlocklistUpdate) => void): this
+/** when calls is rejected */
+on (event: 'call-reject', listener: (update: CallReject) => void): this
 ```
 
 ## Sending Messages

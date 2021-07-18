@@ -476,6 +476,11 @@ export interface BlocklistUpdate {
     added?: string[]
     removed?: string[]
 }
+export interface CallReject {
+    jid?: string
+    rejected: boolean
+    message?: string
+}
 // path to upload the media
 export const MediaPathMap = {
     imageMessage: '/mms/image',
@@ -509,4 +514,5 @@ export type BaileysEvent =
     'group-update' |
     'received-pong' |
     'blocklist-update' |
+    'call-reject' |
     'contact-update'

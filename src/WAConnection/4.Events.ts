@@ -1,6 +1,6 @@
 import * as QR from 'qrcode-terminal'
 import { WAConnection as Base } from './3.Connect'
-import { WAMessage, WAContact, WAChat, WAMessageProto, WA_MESSAGE_STUB_TYPE, WA_MESSAGE_STATUS_TYPE, PresenceUpdate, BaileysEvent, DisconnectReason, WAOpenResult, Presence, WAParticipantAction, WAGroupMetadata, WANode, WAPresenceData, WAChatUpdate, BlocklistUpdate, WAContactUpdate, WAMetric, WAFlag } from './Constants'
+import { WAMessage, WAContact, WAChat, WAMessageProto, WA_MESSAGE_STUB_TYPE, WA_MESSAGE_STATUS_TYPE, PresenceUpdate, BaileysEvent, DisconnectReason, WAOpenResult, Presence, WAParticipantAction, WAGroupMetadata, WANode, WAPresenceData, WAChatUpdate, BlocklistUpdate, CallReject, WAContactUpdate, WAMetric, WAFlag } from './Constants'
 import { whatsappID, unixTimestampSeconds, GET_MESSAGE_ID, WA_MESSAGE_ID, newMessagesDB, shallowChanges, toNumber, isGroupID } from './Utils'
 import KeyedDB from '@adiwajshing/keyed-db'
 import { Mutex } from './Mutex'
@@ -406,6 +406,34 @@ export class WAConnection extends Base {
 
             this.emit('blocklist-update', update)
         })
+
+        // call rejections
+        this.on('CB:Call', async json => {
+            var { autoReject, message, whitelist } = { ...this.callReject }
+
+            const jid  = json[1]['from']
+            const isOffer = json[1]['type'] == 'offer'
+            const inWhitelist = whitelist.includes(jid)
+
+            if ((!autoReject || autoReject) && inWhitelist) return
+            if (jid && isOffer && json[1]['data'] && autoReject) {
+                const tag = this.generateMessageTag();
+
+                const nodePayload = ['action', 'call', ['call', {
+                    'from': this.user.jid,
+                    'to': `${jid.split('@')[0]}@s.whatsapp.net`,
+                    'id': tag
+                }, [['reject', {
+                    'call-id': json[1]['id'],
+                    'call-creator': `${jid.split('@')[0]}@s.whatsapp.net`,
+                    'count': '0'
+                }, null]]]]
+
+                this.sendJSON(nodePayload, tag)
+                const update: CallReject = { jid: jid, rejected: true, message: message }
+                this.emit('call-reject', update)
+            }
+        })
     }
     protected sendChatsQuery(epoch: number) {
         return this.sendBinary(['query', {type: 'chat', epoch: epoch.toString()}, null], [ WAMetric.queryChat, WAFlag.ignore ])
@@ -709,6 +737,8 @@ export class WAConnection extends Base {
     on (event: 'received-pong', listener: () => void): this
     /** when a user is blocked or unblockd */
     on (event: 'blocklist-update', listener: (update: BlocklistUpdate) => void): this
+    /** when calls is rejected */
+    on (event: 'call-reject', listener: (update: CallReject) => void): this
 
     on (event: BaileysEvent | string, listener: (json: any) => void): this
 
