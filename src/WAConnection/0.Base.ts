@@ -70,7 +70,6 @@ export class WAConnection extends EventEmitter {
     chats = new KeyedDB (Utils.waChatKey(false), value => value.jid)
     contacts: { [k: string]: WAContact } = {}
     blocklist: string[] = []
-    callReject: { autoReject: boolean; message?: string; whitelist: any[] }
 
     /** Data structure of tokens & IDs used to establish one's identiy to WhatsApp Web */
     protected authInfo: AuthenticationCredentials
