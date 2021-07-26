@@ -220,7 +220,7 @@ on (event: 'group-update', listener: (update: Partial<WAGroupMetadata> & {jid: s
 on (event: 'received-pong', listener: () => void): this
 /** when a user is blocked or unblockd */
 on (event: 'blocklist-update', listener: (update: BlocklistUpdate) => void): this
-/** when calls is incoming */
+/** when a call is incoming */
 on (event: 'call', listener: (update: Call) => void): this
 ```
 
