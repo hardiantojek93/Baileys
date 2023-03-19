@@ -464,6 +464,12 @@ export const generateWAMessageContent = async(
 			}
 		}
 	}
+	
+	if('contextInfo' in message && !!message.contextInfo) {
+		const [messageType] = Object.keys(m)
+		m[messageType].contextInfo = m[messageType] || { }
+		m[messageType].contextInfo = message.contextInfo
+	}
 
 	if('sections' in message && !!message.sections) {
 		const listMessage: proto.Message.IListMessage = {

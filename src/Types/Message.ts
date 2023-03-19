@@ -48,6 +48,11 @@ export interface WAUrlInfo {
 }
 
 // types to generate WA messages
+
+type Contextable = {
+    contextInfo?: proto.IContextInfo 
+};
+
 type Mentionable = {
     /** list of jids that are mentioned in the accompanying text */
     mentions?: string[]
@@ -94,13 +99,13 @@ export type AnyMediaMessageContent = (
         image: WAMediaUpload
         caption?: string
         jpegThumbnail?: string
-    } & Mentionable & Buttonable & Templatable & WithDimensions)
+    } & Mentionable & Buttonable & Templatable & WithDimensions & Contextable)
     | ({
         video: WAMediaUpload
         caption?: string
         gifPlayback?: boolean
         jpegThumbnail?: string
-    } & Mentionable & Buttonable & Templatable & WithDimensions)
+    } & Mentionable & Buttonable & Templatable & WithDimensions & Contextable)
     | {
         audio: WAMediaUpload
         /** if set to true, will send as a `voice note` */
@@ -134,11 +139,11 @@ export type AnyRegularMessageContent = (
 	    text: string
         linkPreview?: WAUrlInfo | null
     }
-    & Mentionable & Buttonable & Templatable & Listable)
+    & Mentionable & Buttonable & Templatable & Listable & Contextable)
     | AnyMediaMessageContent
     | ({
         poll: PollMessageOptions
-    } & Mentionable & Buttonable & Templatable)
+    } & Mentionable & Buttonable & Templatable & Contextable)
     | {
         contacts: {
             displayName?: string
